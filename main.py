@@ -15,39 +15,31 @@ def main() -> None:
 
         player_race, _ = Race.objects.get_or_create(
             name=race_name,
-            description = race_description
+            description=race_description
         )
 
         for skill_data in race_skills:
             Skill.objects.get_or_create(
-                name = skill_data["name"],
-                race = player_race,
-                bonus = skill_data["bonus"]
+                name=skill_data["name"],
+                race=player_race,
+                bonus=skill_data["bonus"]
             )
-
 
         player_guild = None
         if data["guild"]:
             guild_name = data["guild"].get("name", "")
             guild_description = data["guild"].get("description", "")
             player_guild, _ = Guild.objects.get_or_create(
-                name = guild_name,
-                description = guild_description
+                name=guild_name,
+                description=guild_description
             )
 
         Player.objects.get_or_create(
-            nickname = player_name,
-            email= data["email"],
-            bio= data["bio"],
-            race = player_race,
-            guild = player_guild
-                    )
-
-
-
-
-
-
+            nickname=player_name,
+            email=data["email"],
+            bio=data["bio"],
+            race=player_race,
+            guild=player_guild)
 
 
 if __name__ == "__main__":
