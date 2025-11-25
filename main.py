@@ -7,39 +7,50 @@ from db.models import Race, Skill, Player, Guild
 def main() -> None:
     with open("players.json", "r", encoding="utf-8") as players_file:
         players = json.load(players_file)
+
     for player_name, data in players.items():
 
-        race_name = data["race"]["name"]
-        race_description = data["race"].get("description", "")
-        race_skills = data["race"].get("skills", [])
+        race_data = data.get("race", {})
+        race_name = race_data.get("name", "")
+        race_description = race_data.get("description", "")
+        race_skills = race_data.get("skills", [])
 
         player_race, _ = Race.objects.get_or_create(
             name=race_name,
-            description=race_description
+            defaults={"description": race_description}
         )
 
         for skill_data in race_skills:
+            skill_name = skill_data.get("name", "")
+            skill_bonus = skill_data.get("bonus", 0)
+
             Skill.objects.get_or_create(
-                name=skill_data["name"],
+                name=skill_name,
                 race=player_race,
-                bonus=skill_data["bonus"]
+                defaults={"bonus": skill_bonus}
             )
 
+        guild_data = data.get("guild")
         player_guild = None
-        if data["guild"]:
-            guild_name = data["guild"].get("name", "")
-            guild_description = data["guild"].get("description", "")
+
+        if isinstance(guild_data, dict):
+            guild_name = guild_data.get("name", "")
+            guild_description = guild_data.get("description", "")
+
             player_guild, _ = Guild.objects.get_or_create(
                 name=guild_name,
-                description=guild_description
+                defaults={"description": guild_description}
             )
 
         Player.objects.get_or_create(
             nickname=player_name,
-            email=data["email"],
-            bio=data["bio"],
-            race=player_race,
-            guild=player_guild)
+            defaults={
+                "email": data.get("email", ""),
+                "bio": data.get("bio", ""),
+                "race": player_race,
+                "guild": player_guild,
+            },
+        )
 
 
 if __name__ == "__main__":
